@@ -16,12 +16,41 @@ import {
 } from "@mui/material";
 import styled from "styled-components";
 import { veiculos } from "../data/mockData";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
 
 const DashboardContainer = styled(Container)`
   padding-top: 20px;
 `;
 
 const Dashboard = () => {
+  const handleGenerateReport = () => {
+    const doc = new jsPDF();
+    doc.text("Relatório de Quilometragem e Status dos Veículos", 10, 10);
+
+    // Configuração da tabela
+    const tableColumn = ["Modelo", "Placa", "Quilometragem (km)", "Status"];
+    const tableRows = [];
+
+    veiculos.forEach((veiculo) => {
+      const veiculoData = [
+        veiculo.modelo,
+        veiculo.placa,
+        veiculo.quilometragem,
+        veiculo.status,
+      ];
+      tableRows.push(veiculoData);
+    });
+
+    doc.autoTable({
+      head: [tableColumn],
+      body: tableRows,
+      startY: 20,
+    });
+
+    doc.save("relatorio_veiculos.pdf");
+  };
+
   return (
     <DashboardContainer>
       <Typography variant="h4" gutterBottom>
@@ -31,11 +60,19 @@ const Dashboard = () => {
         <Button
           variant="contained"
           color="primary"
-          style={{ marginBottom: "20px" }}
+          style={{ marginBottom: "20px", marginRight: "10px" }}
         >
           Adicionar Veículo
         </Button>
       </Link>
+      <Button
+        variant="contained"
+        color="secondary"
+        onClick={handleGenerateReport}
+        style={{ marginBottom: "20px" }}
+      >
+        Gerar Relatório de Quilometragem e Status
+      </Button>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>

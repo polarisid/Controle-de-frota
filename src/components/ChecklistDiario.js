@@ -16,6 +16,7 @@ import {
 import styled from "styled-components";
 import { veiculos, motoristas } from "../data/mockData";
 import { jsPDF } from "jspdf";
+import "jspdf-autotable";
 import SignatureCanvas from "react-signature-canvas";
 
 const FormContainer = styled(Container)`
@@ -83,6 +84,7 @@ const ChecklistDiario = () => {
       .getTrimmedCanvas()
       .toDataURL("image/png");
     const doc = new jsPDF();
+
     doc.text("Checklist Diário", 10, 10);
     doc.text(`Data: ${data}`, 10, 20);
     doc.text(
@@ -97,17 +99,35 @@ const ChecklistDiario = () => {
       10,
       40
     );
-    doc.text("Itens Verificados:", 10, 50);
-    Object.keys(itensVerificados).forEach((item, index) => {
-      doc.text(
-        `${item}: ${itensVerificados[item] ? "Sim" : "Não"}`,
-        10,
-        60 + index * 10
-      );
+    doc.text(`Quilometragem: ${quilometragem} km`, 10, 50);
+    doc.text(`Status: ${status}`, 10, 60);
+
+    const tableColumn = ["Item", "Verificado"];
+    const tableRows = Object.keys(itensVerificados).map((item) => [
+      item.charAt(0).toUpperCase() + item.slice(1),
+      itensVerificados[item] ? "Sim" : "Não",
+    ]);
+
+    doc.autoTable({
+      head: [tableColumn],
+      body: tableRows,
+      startY: 70,
     });
-    doc.text(`Observações: ${observacoes}`, 10, 110);
-    doc.text("Assinatura:", 10, 120);
-    doc.addImage(assinatura, "PNG", 10, 130, 50, 20);
+
+    doc.text(
+      `Observações: ${observacoes}`,
+      10,
+      doc.autoTable.previous.finalY + 10
+    );
+    doc.text("Assinatura:", 10, doc.autoTable.previous.finalY + 20);
+    doc.addImage(
+      assinatura,
+      "PNG",
+      10,
+      doc.autoTable.previous.finalY + 30,
+      50,
+      20
+    );
     doc.save("checklist_diario.pdf");
   };
 

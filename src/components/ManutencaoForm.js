@@ -1,7 +1,16 @@
 // src/components/ManutencaoForm.js
 
 import React, { useState } from "react";
-import { Container, TextField, Button, Typography, Box } from "@mui/material";
+import {
+  Container,
+  TextField,
+  Button,
+  Typography,
+  Box,
+  MenuItem,
+  Checkbox,
+  FormControlLabel,
+} from "@mui/material";
 import styled from "styled-components";
 import { veiculos } from "../data/mockData";
 
@@ -18,6 +27,7 @@ const ManutencaoForm = () => {
   const [tipo, setTipo] = useState("");
   const [descricao, setDescricao] = useState("");
   const [pecas, setPecas] = useState([{ nome: "", quantidade: 1 }]);
+  const [trocaPecas, setTrocaPecas] = useState(false);
 
   const adicionarPeca = () => {
     setPecas([...pecas, { nome: "", quantidade: 1 }]);
@@ -33,7 +43,7 @@ const ManutencaoForm = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Aqui você adicionaria o código para salvar os dados
-    console.log({ veiculoId, data, tipo, descricao, pecas });
+    console.log({ veiculoId, data, tipo, descricao, trocaPecas, pecas });
   };
 
   return (
@@ -43,22 +53,19 @@ const ManutencaoForm = () => {
       </Typography>
       <form onSubmit={handleSubmit} style={{ width: "100%" }}>
         <TextField
-          // label="Veículo"
+          label="Veículo"
           variant="outlined"
           margin="normal"
           select
           fullWidth
           value={veiculoId}
           onChange={(e) => setVeiculoId(e.target.value)}
-          SelectProps={{
-            native: true,
-          }}
         >
-          <option value="">Selecione um veículo</option>
+          <MenuItem value="">Selecione um veículo</MenuItem>
           {veiculos.map((veiculo) => (
-            <option key={veiculo.id} value={veiculo.id}>
+            <MenuItem key={veiculo.id} value={veiculo.id}>
               {veiculo.modelo} - {veiculo.placa}
-            </option>
+            </MenuItem>
           ))}
         </TextField>
         <TextField
@@ -77,10 +84,15 @@ const ManutencaoForm = () => {
           label="Tipo"
           variant="outlined"
           margin="normal"
+          select
           fullWidth
           value={tipo}
           onChange={(e) => setTipo(e.target.value)}
-        />
+        >
+          <MenuItem value="">Selecione o tipo de manutenção</MenuItem>
+          <MenuItem value="Preventiva">Manutenção Preventiva</MenuItem>
+          <MenuItem value="Corretiva">Manutenção Corretiva</MenuItem>
+        </TextField>
         <TextField
           label="Descrição"
           variant="outlined"
@@ -89,44 +101,56 @@ const ManutencaoForm = () => {
           value={descricao}
           onChange={(e) => setDescricao(e.target.value)}
         />
-        <Box mt={2}>
-          <Typography variant="h6">Peças</Typography>
-          {pecas.map((peca, index) => (
-            <Box key={index} display="flex" alignItems="center" mt={1}>
-              <TextField
-                label="Nome da peça"
-                variant="outlined"
-                margin="normal"
-                fullWidth
-                value={peca.nome}
-                onChange={(e) =>
-                  handlePecaChange(index, "nome", e.target.value)
-                }
-                style={{ marginRight: "10px" }}
-              />
-              <TextField
-                label="Quantidade"
-                variant="outlined"
-                margin="normal"
-                type="number"
-                fullWidth
-                value={peca.quantidade}
-                onChange={(e) =>
-                  handlePecaChange(index, "quantidade", e.target.value)
-                }
-              />
-            </Box>
-          ))}
-          <Button
-            type="button"
-            variant="contained"
-            color="primary"
-            onClick={adicionarPeca}
-            style={{ marginTop: "10px" }}
-          >
-            Adicionar Peça
-          </Button>
-        </Box>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={trocaPecas}
+              onChange={(e) => setTrocaPecas(e.target.checked)}
+              color="primary"
+            />
+          }
+          label="Houve troca de peças"
+        />
+        {trocaPecas && (
+          <Box mt={2}>
+            <Typography variant="h6">Peças</Typography>
+            {pecas.map((peca, index) => (
+              <Box key={index} display="flex" alignItems="center" mt={1}>
+                <TextField
+                  label="Nome da peça"
+                  variant="outlined"
+                  margin="normal"
+                  fullWidth
+                  value={peca.nome}
+                  onChange={(e) =>
+                    handlePecaChange(index, "nome", e.target.value)
+                  }
+                  style={{ marginRight: "10px" }}
+                />
+                <TextField
+                  label="Quantidade"
+                  variant="outlined"
+                  margin="normal"
+                  type="number"
+                  fullWidth
+                  value={peca.quantidade}
+                  onChange={(e) =>
+                    handlePecaChange(index, "quantidade", e.target.value)
+                  }
+                />
+              </Box>
+            ))}
+            <Button
+              type="button"
+              variant="contained"
+              color="primary"
+              onClick={adicionarPeca}
+              style={{ marginTop: "10px" }}
+            >
+              Adicionar Peça
+            </Button>
+          </Box>
+        )}
         <Button
           type="submit"
           variant="contained"
